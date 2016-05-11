@@ -1,41 +1,30 @@
 {
   "intents": [
     {
-      "intent": "OneshotTideIntent",
+      "intent": "OneshotGuestListIntent",
       "slots": [
         {
-          "name": "City",
-          "type": "LIST_OF_CITIES"
+          "name": "Host",
+          "type": "LIST_OF_HOSTS"
         },
         {
-          "name": "State",
-          "type": "LIST_OF_STATES"
-        },
-        {
-          "name": "Date",
-          "type": "AMAZON.DATE"
+          "name": "Show",
+          "type": "LIST_OF_SHOWS"
         }
       ]
     },
     {
-      "intent": "DialogTideIntent",
+      "intent": "DialogGuestListIntent",
       "slots": [
         {
-          "name": "City",
-          "type": "LIST_OF_CITIES"
+          "name": "Host",
+          "type": "LIST_OF_HOSTS"
         },
         {
-          "name": "State",
-          "type": "LIST_OF_STATES"
-        },
-        {
-          "name": "Date",
-          "type": "AMAZON.DATE"
+          "name": "Show",
+          "type": "LIST_OF_SHOWS"
         }
       ]
-    },
-    {
-      "intent": "SupportedCitiesIntent"
     },
     {
       "intent": "AMAZON.HelpIntent"
