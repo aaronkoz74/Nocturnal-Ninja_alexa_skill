@@ -164,12 +164,14 @@ Response.prototype = (function () {
                 shouldEndSession: true
             }));
         },
-        tellWithCard: function (speechOutput, cardTitle, cardContent) {
+        tellWithCard: function (speechOutput, cardTitle, cardContent, imageFile) {
             this._context.succeed(buildSpeechletResponse({
                 session: this._session,
+                type: "Standard",
                 output: speechOutput,
                 cardTitle: cardTitle,
                 cardContent: cardContent,
+                image: imageFile,
                 shouldEndSession: true
             }));
         },

@@ -21,12 +21,12 @@
  *
  * Examples:
  * One-shot model:
- *  User:  "Alexa, ask Tide Pooler when is the high tide in Seattle on Saturday"
+ *  User:  "Alexa, ask Nocturnal Ninja when is the high tide in Seattle on Saturday"
  *  Alexa: "Saturday June 20th in Seattle the first high tide will be around 7:18 am,
  *          and will peak at ...""
  * Dialog model:
- *  User:  "Alexa, open Tide Pooler"
- *  Alexa: "Welcome to Tide Pooler. Which city would you like tide information for?"
+ *  User:  "Alexa, open Nocturnal Ninja"
+ *  Alexa: "Welcome to Nocturnal Ninja. Which city would you like tide information for?"
  *  User:  "Seattle"
  *  Alexa: "For which date?"
  *  User:  "this Saturday"
@@ -39,42 +39,39 @@
  */
 var APP_ID = 'amzn1.echo-sdk-ams.app.f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28';
 
-var http = require('http'),
-    alexaDateUtil = require('./alexaDateUtil');
-
 /**
  * The AlexaSkill prototype and helper functions
  */
 var AlexaSkill = require('./AlexaSkill');
 
 /**
- * TidePooler is a child of AlexaSkill.
+ * NocturnalNinja is a child of AlexaSkill.
  * To read more about inheritance in JavaScript, see the link below.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript#Inheritance
  */
-var TidePooler = function () {
+var NocturnalNinja = function () {
     AlexaSkill.call(this, APP_ID);
 };
 
 // Extend AlexaSkill
-TidePooler.prototype = Object.create(AlexaSkill.prototype);
-TidePooler.prototype.constructor = TidePooler;
+NocturnalNinja.prototype = Object.create(AlexaSkill.prototype);
+NocturnalNinja.prototype.constructor = NocturnalNinja;
 
 // ----------------------- Override AlexaSkill request and intent handlers -----------------------
 
-TidePooler.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
+NocturnalNinja.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
     console.log("onSessionStarted requestId: " + sessionStartedRequest.requestId
         + ", sessionId: " + session.sessionId);
     // any initialization logic goes here
 };
 
-TidePooler.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
+NocturnalNinja.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
     handleWelcomeRequest(response);
 };
 
-TidePooler.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
+NocturnalNinja.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
     console.log("onSessionEnded requestId: " + sessionEndedRequest.requestId
         + ", sessionId: " + session.sessionId);
     // any cleanup logic goes here
@@ -83,27 +80,22 @@ TidePooler.prototype.eventHandlers.onSessionEnded = function (sessionEndedReques
 /**
  * override intentHandlers to map intent handling functions.
  */
-TidePooler.prototype.intentHandlers = {
-    "OneshotTideIntent": function (intent, session, response) {
-        handleOneshotTideRequest(intent, session, response);
+NocturnalNinja.prototype.intentHandlers = {
+    "OneshotGuestListIntent": function (intent, session, response) {
+        handleOneshotGuestListRequest(intent, session, response);
     },
 
-    "DialogTideIntent": function (intent, session, response) {
-        // Determine if this turn is for city, for date, or an error.
+    "DialogGuestListIntent": function (intent, session, response) {
+        // Determine if this turn is for host, for show, or an error.
         // We could be passed slots with values, no slots, slots with no value.
-        var citySlot = intent.slots.City;
-        var dateSlot = intent.slots.Date;
-        if (citySlot && citySlot.value) {
-            handleCityDialogRequest(intent, session, response);
-        } else if (dateSlot && dateSlot.value) {
-            handleDateDialogRequest(intent, session, response);
+        var showSlot = intent.slots.Show;
+        var hostSlot = intent.slots.Host;
+        
+        if (hostSlot.value || showSlot.value) {
+            handleHostDialogRequest(intent, session, response);
         } else {
             handleNoSlotDialogRequest(intent, session, response);
         }
-    },
-
-    "SupportedCitiesIntent": function (intent, session, response) {
-        handleSupportedCitiesRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
@@ -121,44 +113,34 @@ TidePooler.prototype.intentHandlers = {
     }
 };
 
-// -------------------------- TidePooler Domain Specific Business Logic --------------------------
+// -------------------------- NocturnalNinja Domain Specific Business Logic --------------------------
 
-// example city to NOAA station mapping. Can be found on: http://tidesandcurrents.noaa.gov/map/
-var STATIONS = {
-    'seattle': 9447130,
-    'san francisco': 9414290,
-    'monterey': 9413450,
-    'los angeles': 9410660,
-    'san diego': 9410170,
-    'boston': 8443970,
-    'new york': 8518750,
-    'virginia beach': 8638863,
-    'wilmington': 8658163,
-    'charleston': 8665530,
-    'beaufort': 8656483,
-    'myrtle beach': 8661070,
-    'miami': 8723214,
-    'tampa': 8726667,
-    'new orleans': 8761927,
-    'galveston': 8771341
+var SHOWS = {
+    'the tonight show': 718,
+    'the late show': 2756,
+    'jimmy kimmel live': 1388
+};
+
+var HOSTS = {
+    'jimmy fallon': 'the tonight show',
+    'jimmy kimmel': 'jimmy kimmel live',
+    'stephen colbert': 'the late show'
 };
 
 function handleWelcomeRequest(response) {
-    var whichCityPrompt = "Which city would you like tide information for?",
+    var whichHostPrompt = "For which host would you like guest information?",
         speechOutput = {
-            speech: "<speak>Welcome to Tide Pooler. "
-                + "<audio src='https://s3.amazonaws.com/ask-storage/tidePooler/OceanWaves.mp3'/>"
-                + whichCityPrompt
+            speech: "<speak>Welcome to Nocturnal Ninja. "
+                + whichHostPrompt
                 + "</speak>",
             type: AlexaSkill.speechOutputType.SSML
         },
         repromptOutput = {
-            speech: "I can lead you through providing a city and "
-                + "day of the week to get tide information, "
-                + "or you can simply open Tide Pooler and ask a question like, "
-                + "get tide information for Seattle on Saturday. "
-                + "For a list of supported cities, ask what cities are supported. "
-                + whichCityPrompt,
+            speech: "I can lead you through providing the name of the host or "
+                + "show to get guest information, "
+                + "or you can simply open Nocturnal Ninja and ask a question like, "
+                + "who is going to be on Jimmy Kimmel? "
+                + whichHostPrompt,
             type: AlexaSkill.speechOutputType.PLAIN_TEXT
         };
 
@@ -166,12 +148,11 @@ function handleWelcomeRequest(response) {
 }
 
 function handleHelpRequest(response) {
-    var repromptText = "Which city would you like tide information for?";
-    var speechOutput = "I can lead you through providing a city and "
-        + "day of the week to get tide information, "
-        + "or you can simply open Tide Pooler and ask a question like, "
-        + "get tide information for Seattle on Saturday. "
-        + "For a list of supported cities, ask what cities are supported. "
+    var repromptText = "For which host would you like guest information?";
+    var speechOutput = "I can lead you through providing the name of the host or "
+                + "show to get guest information, "
+                + "or you can simply open Nocturnal Ninja and ask a question like, "
+                + "who is going to be on Jimmy Kimmel? "
         + "Or you can say exit. "
         + repromptText;
 
@@ -179,373 +160,201 @@ function handleHelpRequest(response) {
 }
 
 /**
- * Handles the case where the user asked or for, or is otherwise being with supported cities
+ * Handles the dialog step where the user provides a host
  */
-function handleSupportedCitiesRequest(intent, session, response) {
-    // get city re-prompt
-    var repromptText = "Which city would you like tide information for?";
-    var speechOutput = "Currently, I know tide information for these coastal cities: " + getAllStationsText()
-        + repromptText;
 
-    response.ask(speechOutput, repromptText);
-}
+function handleHostDialogRequest(intent, session, response) {
 
-/**
- * Handles the dialog step where the user provides a city
- */
-function handleCityDialogRequest(intent, session, response) {
-
-    var cityStation = getCityStationFromIntent(intent, false),
+    var showInfo = getShowHostFromIntent(intent, false),
         repromptText,
         speechOutput;
-    if (cityStation.error) {
-        repromptText = "Currently, I know tide information for these coastal cities: " + getAllStationsText()
-            + "Which city would you like tide information for?";
-        // if we received a value for the incorrect city, repeat it to the user, otherwise we received an empty slot
-        speechOutput = cityStation.city ? "I'm sorry, I don't have any data for " + cityStation.city + ". " + repromptText : repromptText;
-        response.ask(speechOutput, repromptText);
-        return;
-    }
-
-    // if we don't have a date yet, go to date. If we have a date, we perform the final request
-    if (session.attributes.date) {
-        getFinalTideResponse(cityStation, session.attributes.date, response);
-    } else {
-        // set city in session and prompt for date
-        session.attributes.city = cityStation;
-        speechOutput = "For which date?";
-        repromptText = "For which date would you like tide information for " + cityStation.city + "?";
-
-        response.ask(speechOutput, repromptText);
-    }
-}
-
-/**
- * Handles the dialog step where the user provides a date
- */
-function handleDateDialogRequest(intent, session, response) {
-
-    var date = getDateFromIntent(intent),
-        repromptText,
-        speechOutput;
-    if (!date) {
-        repromptText = "Please try again saying a day of the week, for example, Saturday. "
-            + "For which date would you like tide information?";
-        speechOutput = "I'm sorry, I didn't understand that date. " + repromptText;
+    if (showInfo.error) {
+        repromptText = "Currently, I have guest information for these late night hosts: " + "Jimmy Fallon ," + "Stephen Colbert ," + "and Jimmy Kimmel. "
+            + "For which host would you like guest information?";
+        speechOutput = "I'm sorry, I didn't understand that name. " + repromptText;
 
         response.ask(speechOutput, repromptText);
         return;
     }
 
-    // if we don't have a city yet, go to city. If we have a city, we perform the final request
-    if (session.attributes.city) {
-        getFinalTideResponse(session.attributes.city, date, response);
-    } else {
-        // The user provided a date out of turn. Set date in session and prompt for city
-        session.attributes.date = date;
-        speechOutput = "For which city would you like tide information for " + date.displayDate + "?";
-        repromptText = "For which city?";
+    getFinalGuestResponse(showInfo, response);
 
-        response.ask(speechOutput, repromptText);
-    }
-}
 
-/**
- * Handle no slots, or slot(s) with no values.
- * In the case of a dialog based skill with multiple slots,
- * when passed a slot with no value, we cannot have confidence
- * it is the correct slot type so we rely on session state to
- * determine the next turn in the dialog, and reprompt.
- */
-function handleNoSlotDialogRequest(intent, session, response) {
-    if (session.attributes.city) {
-        // get date re-prompt
-        var repromptText = "Please try again saying a day of the week, for example, Saturday. ";
-        var speechOutput = repromptText;
-
-        response.ask(speechOutput, repromptText);
-    } else {
-        // get city re-prompt
-        handleSupportedCitiesRequest(intent, session, response);
-    }
 }
 
 /**
  * This handles the one-shot interaction, where the user utters a phrase like:
- * 'Alexa, open Tide Pooler and get tide information for Seattle on Saturday'.
+ * 'Alexa, open Nocturnal Ninja and tell me who is going to be on Jimmy Kimmel.
  * If there is an error in a slot, this will guide the user to the dialog approach.
  */
-function handleOneshotTideRequest(intent, session, response) {
+function handleOneshotGuestListRequest(intent, session, response) {
 
-    // Determine city, using default if none provided
-    var cityStation = getCityStationFromIntent(intent, true),
+    // Determine host, using default if none provided
+    var showInfo = getShowHostFromIntent(intent, true),
         repromptText,
         speechOutput;
-    if (cityStation.error) {
-        // invalid city. move to the dialog
-        repromptText = "Currently, I know tide information for these coastal cities: " + getAllStationsText()
-            + "Which city would you like tide information for?";
-        // if we received a value for the incorrect city, repeat it to the user, otherwise we received an empty slot
-        speechOutput = cityStation.city ? "I'm sorry, I don't have any data for " + cityStation.city + ". " + repromptText : repromptText;
-
-        response.ask(speechOutput, repromptText);
-        return;
-    }
-
-    // Determine custom date
-    var date = getDateFromIntent(intent);
-    if (!date) {
-        // Invalid date. set city in session and prompt for date
-        session.attributes.city = cityStation;
-        repromptText = "Please try again saying a day of the week, for example, Saturday. "
-            + "For which date would you like tide information?";
-        speechOutput = "I'm sorry, I didn't understand that date. " + repromptText;
+    if (showInfo.error) {
+        // invalid show. move to the dialog
+        repromptText = "Currently, I have guest information for these late night hosts: " + "Jimmy Fallon ," + "Stephen Colbert ," + "and Jimmy Kimmel. "
+            + "For which host would you like guest information?";
+        // if we received a value for the incorrect host, repeat it to the user, otherwise we received an empty slot
+        speechOutput = showInfo.host ? "I'm sorry, I don't have any guest information for " + showInfo.host + ". " + repromptText : repromptText;
 
         response.ask(speechOutput, repromptText);
         return;
     }
 
     // all slots filled, either from the user or by default values. Move to final request
-    getFinalTideResponse(cityStation, date, response);
+    getFinalGuestResponse(showInfo, response);
 }
 
 /**
  * Both the one-shot and dialog based paths lead to this method to issue the request, and
  * respond to the user with the final answer.
  */
-function getFinalTideResponse(cityStation, date, response) {
+function getFinalGuestResponse(showInfo, response) {
 
     // Issue the request, and respond to the user
-    makeTideRequest(cityStation.station, date, function tideResponseCallback(err, highTideResponse) {
+    makeGuestRequest(showInfo, function guestListResponseCallback(err, guestListResponse) {
         var speechOutput;
 
         if (err) {
-            speechOutput = "Sorry, the National Oceanic tide service is experiencing a problem. Please try again later";
+            speechOutput = "Sorry, the API used to collect the guest information is experiencing a problem. Please try again later";
         } else {
-            speechOutput = date.displayDate + " in " + cityStation.city + ", the first high tide will be around "
-                + highTideResponse.firstHighTideTime + ", and will peak at about " + highTideResponse.firstHighTideHeight
-                + ", followed by a low tide at around " + highTideResponse.lowTideTime
-                + " that will be about " + highTideResponse.lowTideHeight
-                + ". The second high tide will be around " + highTideResponse.secondHighTideTime
-                + ", and will peak at about " + highTideResponse.secondHighTideHeight + ".";
+            speechOutput = "Tonight, " + showInfo + " welcomes " + guestListResponse + " to the show.";
         }
 
-        response.tellWithCard(speechOutput, "TidePooler", speechOutput)
+        // Need to add code to build the image url for both small and large images ... based on the host requested.  This info will be be supplied to the tellWithCard function.
+        var lastName = showInfo.split(' ').slice(-1).join(' ');
+        var imageFile = {
+            "smallImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Small.jpg",
+            "largeImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Large.jpg"
+        };
+               
+        response.tellWithCard(speechOutput, "NocturnalNinja", speechOutput, imageFile)
     });
 }
 
 /**
- * Uses NOAA.gov API, documented: http://tidesandcurrents.noaa.gov/api/
- * Results can be verified at: http://tidesandcurrents.noaa.gov/noaatidepredictions/NOAATidesFacade.jsp?Stationid=[id]
- */
-function makeTideRequest(station, date, tideResponseCallback) {
+Get today's date in format to use with API
+*/
+var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1; //January is 0!
+    var yyyy = today.getFullYear();
 
-    var datum = "MLLW";
-    var endpoint = 'http://tidesandcurrents.noaa.gov/api/datagetter';
-    var queryString = '?' + date.requestDateParam;
-    queryString += '&station=' + station;
-    queryString += '&product=predictions&datum=' + datum + '&units=english&time_zone=lst_ldt&format=json';
+    if (dd < 10) {
+        dd = '0' + dd;
+    } 
+    if (mm < 10) {
+        mm = '0' + mm;
+    } 
+    today = yyyy + '-' + mm +'-' + dd;
+    return today;
 
-    http.get(endpoint + queryString, function (res) {
-        var noaaResponseString = '';
-        console.log('Status Code: ' + res.statusCode);
 
-        if (res.statusCode != 200) {
-            tideResponseCallback(new Error("Non 200 Response"));
+// Jimmy Kimmel Live: 1388,
+// The Tonight Show Starring Jimmy Fallon: 718,
+// The Late Show With Stephen Colbert: 2756
+
+
+// http://api.tvmaze.com/shows/718/episodesbydate?date=2016-05-05
+//response[0].name
+
+function makeGuestRequest(showCode, date, guestListResponseCallback) {
+
+//The url we want is similar to: 'api.tvmaze.com/shows/718/episodesbydate?date=2016-05-05'
+    var options = {
+      host: 'api.tvmaze.com',
+      path: '/shows/' + showCode + '/episodesbydate?date=' + date
+    };
+
+    http.request(options, function(response) {
+        var tvMazeResponseString = '';
+
+        if (response.statusCode != 200) {
+            guestListResponseCallback(new Error("Non 200 Response"));
         }
 
-        res.on('data', function (data) {
-            noaaResponseString += data;
+        response.on('data', function (data) {
+        tvMazeResponseString += data;
         });
 
-        res.on('end', function () {
-            var noaaResponseObject = JSON.parse(noaaResponseString);
+        response.on('end', function () {
+            var tvMazeResponseObject = JSON.parse(tvMazeResponseString);
 
-            if (noaaResponseObject.error) {
-                console.log("NOAA error: " + noaaResponseObj.error.message);
-                tideResponseCallback(new Error(noaaResponseObj.error.message));
+            if (tvMazeResponseObject.error) {
+                console.log("TV Maze error: " + tvMazeResponseObject.error.message);
+                guestListResponseCallback(new Error(tvMazeResponseObject.error.message));
             } else {
-                var highTide = findHighTide(noaaResponseObject);
-                tideResponseCallback(null, highTide);
+
+                // edit the guestList so that it includes 'and' before the last guest name
+
+                var guestList = tvMazeResponseObject[0].name;
+                var guestArray = guestList.split(',');
+                
+                if (guestArray.length <= 1) {
+                    return guestList;
+                } else {
+                    guestList = guestArray.slice(0, -1) + " and " + guestArray.slice(-1);
+                    console.log(guestList);
+                    guestListResponseCallback(null, guestList);
+                }
             }
         });
     }).on('error', function (e) {
-        console.log("Communications error: " + e.message);
-        tideResponseCallback(new Error(e.message));
+            console.log("Communications error: " + e.message);
+            guestListResponseCallback(new Error(e.message));
     });
 }
 
 /**
- * Algorithm to find the 2 high tides for the day, the first of which is smaller and occurs
- * mid-day, the second of which is larger and typically in the evening
+ * Gets the show code from the intent, or returns an error
  */
-function findHighTide(noaaResponseObj) {
-    var predictions = noaaResponseObj.predictions;
-    var lastPrediction;
-    var firstHighTide, secondHighTide, lowTide;
-    var firstTideDone = false;
+function getShowHostFromIntent(intent, assignDefault) {
 
-    for (var i = 0; i < predictions.length; i++) {
-        var prediction = predictions[i];
-
-        if (!lastPrediction) {
-            lastPrediction = prediction;
-            continue;
-        }
-
-        if (isTideIncreasing(lastPrediction, prediction)) {
-            if (!firstTideDone) {
-                firstHighTide = prediction;
-            } else {
-                secondHighTide = prediction;
-            }
-
-        } else { // we're decreasing
-
-            if (!firstTideDone && firstHighTide) {
-                firstTideDone = true;
-            } else if (secondHighTide) {
-                break; // we're decreasing after have found 2nd tide. We're done.
-            }
-
-            if (firstTideDone) {
-                lowTide = prediction;
-            }
-        }
-
-        lastPrediction = prediction;
-    }
-
-    return {
-        firstHighTideTime: alexaDateUtil.getFormattedTime(new Date(firstHighTide.t)),
-        firstHighTideHeight: getFormattedHeight(firstHighTide.v),
-        lowTideTime: alexaDateUtil.getFormattedTime(new Date(lowTide.t)),
-        lowTideHeight: getFormattedHeight(lowTide.v),
-        secondHighTideTime: alexaDateUtil.getFormattedTime(new Date(secondHighTide.t)),
-        secondHighTideHeight: getFormattedHeight(secondHighTide.v)
-    }
-}
-
-function isTideIncreasing(lastPrediction, currentPrediction) {
-    return parseFloat(lastPrediction.v) < parseFloat(currentPrediction.v);
-}
-
-/**
- * Formats the height, rounding to the nearest 1/2 foot. e.g.
- * 4.354 -> "four and a half feet".
- */
-function getFormattedHeight(height) {
-    var isNegative = false;
-    if (height < 0) {
-        height = Math.abs(height);
-        isNegative = true;
-    }
-
-    var remainder = height % 1;
-    var feet, remainderText;
-
-    if (remainder < 0.25) {
-        remainderText = '';
-        feet = Math.floor(height);
-    } else if (remainder < 0.75) {
-        remainderText = " and a half";
-        feet = Math.floor(height);
-    } else {
-        remainderText = '';
-        feet = Math.ceil(height);
-    }
-
-    if (isNegative) {
-        feet *= -1;
-    }
-
-    var formattedHeight = feet + remainderText + " feet";
-    return formattedHeight;
-}
-
-/**
- * Gets the city from the intent, or returns an error
- */
-function getCityStationFromIntent(intent, assignDefault) {
-
-    var citySlot = intent.slots.City;
+    var hostSlot = intent.slots.Host;
+    var showSlot = intent.slots.Show;
     // slots can be missing, or slots can be provided but with empty value.
     // must test for both.
-    if (!citySlot || !citySlot.value) {
+    if (!hostSlot.value && !showSlot.value) {
         if (!assignDefault) {
             return {
                 error: true
             }
         } else {
-            // For sample skill, default to Seattle.
+            // For sample skill, default to the code for Jimmy Fallon.
             return {
-                city: 'seattle',
-                station: STATIONS.seattle
+                host: 'jimmy fallon',
+                showCode: SHOWS["the tonight show"].toString()
             }
         }
     } else {
-        // lookup the city. Sample skill uses well known mapping of a few known cities to station id.
-        var cityName = citySlot.value;
-        if (STATIONS[cityName.toLowerCase()]) {
+        // lookup the show code.
+        if (hostSlot) {
+            var showInfo = hostSlot.value;
+            var showName = HOSTS[showInfo.toLowerCase()];
+        } else if (showSlot) {
+            showName = showSlot.value;
+        }
+        
+        if (showName) {
             return {
-                city: cityName,
-                station: STATIONS[cityName.toLowerCase()]
+                host: showInfo,
+                showCode: SHOWS[showName].toString()
             }
         } else {
             return {
                 error: true,
-                city: cityName
+                host: showInfo
             }
         }
     }
 }
 
-/**
- * Gets the date from the intent, defaulting to today if none provided,
- * or returns an error
- */
-function getDateFromIntent(intent) {
-
-    var dateSlot = intent.slots.Date;
-    // slots can be missing, or slots can be provided but with empty value.
-    // must test for both.
-    if (!dateSlot || !dateSlot.value) {
-        // default to today
-        return {
-            displayDate: "Today",
-            requestDateParam: "date=today"
-        }
-    } else {
-
-        var date = new Date(dateSlot.value);
-
-        // format the request date like YYYYMMDD
-        var month = (date.getMonth() + 1);
-        month = month < 10 ? '0' + month : month;
-        var dayOfMonth = date.getDate();
-        dayOfMonth = dayOfMonth < 10 ? '0' + dayOfMonth : dayOfMonth;
-        var requestDay = "begin_date=" + date.getFullYear() + month + dayOfMonth
-            + "&range=24";
-
-        return {
-            displayDate: alexaDateUtil.getFormattedDate(date),
-            requestDateParam: requestDay
-        }
-    }
-}
-
-function getAllStationsText() {
-    var stationList = '';
-    for (var station in STATIONS) {
-        stationList += station + ", ";
-    }
-
-    return stationList;
-}
-
 // Create the handler that responds to the Alexa Request.
 exports.handler = function (event, context) {
-    var tidePooler = new TidePooler();
-    tidePooler.execute(event, context);
+    var nocturnalNinja = new NocturnalNinja();
+    nocturnalNinja.execute(event, context);
 };
 
