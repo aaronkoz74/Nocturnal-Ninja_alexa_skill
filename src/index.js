@@ -39,6 +39,8 @@
  */
 var APP_ID = 'amzn1.echo-sdk-ams.app.f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28';
 
+var http = require('http');
+
 /**
  * The AlexaSkill prototype and helper functions
  */
@@ -221,11 +223,11 @@ function getFinalGuestResponse(showInfo, response) {
         if (err) {
             speechOutput = "Sorry, the API used to collect the guest information is experiencing a problem. Please try again later";
         } else {
-            speechOutput = "Tonight, " + showInfo + " welcomes " + guestListResponse + " to the show.";
+            speechOutput = "Tonight, " + showInfo.host + " welcomes " + guestListResponse + " to the show.";
         }
 
         // Need to add code to build the image url for both small and large images ... based on the host requested.  This info will be be supplied to the tellWithCard function.
-        var lastName = showInfo.split(' ').slice(-1).join(' ');
+        var lastName = showInfo.host.split(' ').slice(-1).join(' ');
         var imageFile = {
             "smallImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Small.jpg",
             "largeImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Large.jpg"
@@ -238,19 +240,19 @@ function getFinalGuestResponse(showInfo, response) {
 /**
 Get today's date in format to use with API
 */
-var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-    var yyyy = today.getFullYear();
-
-    if (dd < 10) {
-        dd = '0' + dd;
-    } 
-    if (mm < 10) {
-        mm = '0' + mm;
-    } 
-    today = yyyy + '-' + mm +'-' + dd;
-    return today;
+//var today = new Date();
+//    var dd = today.getDate();
+//    var mm = today.getMonth() + 1; //January is 0!
+//    var yyyy = today.getFullYear();
+//
+//    if (dd < 10) {
+//        dd = '0' + dd;
+//    } 
+//    if (mm < 10) {
+//        mm = '0' + mm;
+//    } 
+//    today = yyyy + '-' + mm +'-' + dd;
+//    return today;
 
 
 // Jimmy Kimmel Live: 1388,
@@ -261,32 +263,46 @@ var today = new Date();
 // http://api.tvmaze.com/shows/718/episodesbydate?date=2016-05-05
 //response[0].name
 
-function makeGuestRequest(showCode, date, guestListResponseCallback) {
+function makeGuestRequest(showInfo, guestListResponseCallback) {
+    
+    /**
+Get today's date in format to use with API
+*/
+    var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //January is 0!
+        var yyyy = today.getFullYear();
 
-//The url we want is similar to: 'api.tvmaze.com/shows/718/episodesbydate?date=2016-05-05'
-    var options = {
-      host: 'api.tvmaze.com',
-      path: '/shows/' + showCode + '/episodesbydate?date=' + date
-    };
+        if (dd < 10) {
+            dd = '0' + dd;
+        } 
+        if (mm < 10) {
+            mm = '0' + mm;
+        } 
+        today = yyyy + '-' + mm +'-' + dd;
 
-    http.request(options, function(response) {
-        var tvMazeResponseString = '';
+    var endpoint = 'http://api.tvmaze.com';
+    var queryString = '/shows/' + showInfo.showCode + '/episodesbydate?date=' + today;
 
+    http.get(endpoint + queryString, function(response) {
+        var tvMazeResponseObject;
+        console.log('Status Code: ' + response.statusCode);
+        
         if (response.statusCode != 200) {
             guestListResponseCallback(new Error("Non 200 Response"));
         }
 
         response.on('data', function (data) {
-        tvMazeResponseString += data;
+        tvMazeResponseObject += data;
         });
 
         response.on('end', function () {
-            var tvMazeResponseObject = JSON.parse(tvMazeResponseString);
-
-            if (tvMazeResponseObject.error) {
-                console.log("TV Maze error: " + tvMazeResponseObject.error.message);
-                guestListResponseCallback(new Error(tvMazeResponseObject.error.message));
-            } else {
+//            var tvMazeResponseObject = JSON.parse(tvMazeResponseString);
+//
+//            if (tvMazeResponseObject.error) {
+//                console.log("TV Maze error: " + tvMazeResponseObj.error.message);
+//                guestListResponseCallback(new Error(tvMazeResponseObj.error.message));
+//            } else {
 
                 // edit the guestList so that it includes 'and' before the last guest name
 
@@ -297,14 +313,13 @@ function makeGuestRequest(showCode, date, guestListResponseCallback) {
                     return guestList;
                 } else {
                     guestList = guestArray.slice(0, -1) + " and " + guestArray.slice(-1);
-                    console.log(guestList);
                     guestListResponseCallback(null, guestList);
                 }
-            }
+//            }
         });
     }).on('error', function (e) {
-            console.log("Communications error: " + e.message);
-            guestListResponseCallback(new Error(e.message));
+      console.log("Communications error: " + e.message);
+      guestListResponseCallback(new Error(e.message));
     });
 }
 
