@@ -223,7 +223,7 @@ function getFinalGuestResponse(showInfo, response) {
         if (err) {
             speechOutput = "Sorry, the API used to collect the guest information is experiencing a problem. Please try again later";
         } else {
-            speechOutput = "Tonight, " + showInfo.host + " welcomes " + guestListResponse + " to the show.";
+            speechOutput = "Tonight, " + showInfo.host + " welcomes  " + guestListResponse + " to the show.";
         }
 
         // Need to add code to build the image url for both small and large images ... based on the host requested.  This info will be be supplied to the tellWithCard function.
@@ -281,46 +281,45 @@ Get today's date in format to use with API
         } 
         today = yyyy + '-' + mm +'-' + dd;
 
-    var endpoint = 'http://api.tvmaze.com';
-    var queryString = '/shows/' + showInfo.showCode + '/episodesbydate?date=' + today;
+    var http = require('http');
 
-    http.get(endpoint + queryString, function(response) {
-        var tvMazeResponseObject;
-        console.log('Status Code: ' + response.statusCode);
-        
-        if (response.statusCode != 200) {
-            guestListResponseCallback(new Error("Non 200 Response"));
-        }
+    //The url we want is: 'www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new'
+    var options = {
+        host: 'api.tvmaze.com',
+        path: '/shows/' + showInfo.showCode + '/episodesbydate?date=' + today
+    };
+    http.request(options, function(response) {
+        var str = '';
 
-        response.on('data', function (data) {
-        tvMazeResponseObject += data;
+        //another chunk of data has been recieved, so append it to `str`
+        response.on('data', function (chunk) {
+        str += chunk;
         });
 
+        //the whole response has been recieved, so we just print it out here
         response.on('end', function () {
-//            var tvMazeResponseObject = JSON.parse(tvMazeResponseString);
-//
-//            if (tvMazeResponseObject.error) {
-//                console.log("TV Maze error: " + tvMazeResponseObj.error.message);
-//                guestListResponseCallback(new Error(tvMazeResponseObj.error.message));
-//            } else {
+            var tvMazeResponseObject = JSON.parse(str); 
+
+
+            if (tvMazeResponseObject.error) {
+                console.log("TV Maze error: " + tvMazeResponseObj.error.message);
+                guestListResponseCallback(new Error(tvMazeResponseObj.error.message));
+            } else {
 
                 // edit the guestList so that it includes 'and' before the last guest name
 
                 var guestList = tvMazeResponseObject[0].name;
                 var guestArray = guestList.split(',');
-                
+
                 if (guestArray.length <= 1) {
                     return guestList;
                 } else {
                     guestList = guestArray.slice(0, -1) + " and " + guestArray.slice(-1);
                     guestListResponseCallback(null, guestList);
                 }
-//            }
+            }
         });
-    }).on('error', function (e) {
-      console.log("Communications error: " + e.message);
-      guestListResponseCallback(new Error(e.message));
-    });
+    }).end();
 }
 
 /**
