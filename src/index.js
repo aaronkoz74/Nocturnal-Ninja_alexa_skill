@@ -117,10 +117,16 @@ NocturnalNinja.prototype.intentHandlers = {
 
 // -------------------------- NocturnalNinja Domain Specific Business Logic --------------------------
 
-var SHOWS = {
+var SHOWCODE = {
     'the tonight show': 718,
     'the late show': 2756,
     'jimmy kimmel live': 1388
+};
+
+var SHOWS = {
+    'the tonight show' : 'jimmy fallon',
+    'jimmy kimmel live': 'jimmy kimmel',
+    'the late show': 'stephen colbert'
 };
 
 var HOSTS = {
@@ -130,9 +136,9 @@ var HOSTS = {
 };
 
 function handleWelcomeRequest(response) {
-    var whichHostPrompt = "For which host would you like guest information?",
+    var whichHostPrompt = "For which host or show would you like guest information?",
         speechOutput = {
-            speech: "<speak>Welcome to Nocturnal Ninja. "
+            speech: "<speak>Welcome to Nocturnal Ninja.  Your guide to who is going to be on late night talk shows. "
                 + whichHostPrompt
                 + "</speak>",
             type: AlexaSkill.speechOutputType.SSML
@@ -150,7 +156,7 @@ function handleWelcomeRequest(response) {
 }
 
 function handleHelpRequest(response) {
-    var repromptText = "For which host would you like guest information?";
+    var repromptText = "For which host or show would you like guest information?";
     var speechOutput = "I can lead you through providing the name of the host or "
                 + "show to get guest information, "
                 + "or you can simply open Nocturnal Ninja and ask a question like, "
@@ -340,22 +346,23 @@ function getShowHostFromIntent(intent, assignDefault) {
             // For sample skill, default to the code for Jimmy Fallon.
             return {
                 host: 'jimmy fallon',
-                showCode: SHOWS["the tonight show"].toString()
+                showCode: '718'
             }
         }
     } else {
         // lookup the show code.
-        if (hostSlot) {
+        if (hostSlot.value) {
             var showInfo = hostSlot.value;
             var showName = HOSTS[showInfo.toLowerCase()];
-        } else if (showSlot) {
+        } else if (showSlot.value) {
             showName = showSlot.value;
+            showInfo = SHOWS[showName.toLowerCase()];
         }
         
         if (showName) {
             return {
                 host: showInfo,
-                showCode: SHOWS[showName].toString()
+                showCode: SHOWCODE[showName].toString()
             }
         } else {
             return {
