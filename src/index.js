@@ -238,8 +238,6 @@ function getFinalGuestResponse(showInfo, response) {
             smallImageUrl: "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Small.jpg",
             largeImageUrl: "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Large.jpg"
         };
-               
-        console.log(lastName);
         
         response.tellWithCard(speechOutput, "Nocturnal Ninja", speechOutput, imageFile)
     });
