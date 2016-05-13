@@ -235,11 +235,13 @@ function getFinalGuestResponse(showInfo, response) {
         // Need to add code to build the image url for both small and large images ... based on the host requested.  This info will be be supplied to the tellWithCard function.
         var lastName = showInfo.host.split(' ').slice(-1).join(' ');
         var imageFile = {
-            "smallImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Small.jpg",
-            "largeImageUrl": "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Large.jpg"
+            smallImageUrl: "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Small.jpg",
+            largeImageUrl: "https://s3.amazonaws.com/nocturnalninjaimagefiles/" + lastName + "Large.jpg"
         };
                
-        response.tellWithCard(speechOutput, "NocturnalNinja", speechOutput, imageFile)
+        console.log(lastName);
+        
+        response.tellWithCard(speechOutput, "Nocturnal Ninja", speechOutput, imageFile)
     });
 }
 
