@@ -243,23 +243,6 @@ function getFinalGuestResponse(showInfo, response) {
     });
 }
 
-/**
-Get today's date in format to use with API
-*/
-//var today = new Date();
-//    var dd = today.getDate();
-//    var mm = today.getMonth() + 1; //January is 0!
-//    var yyyy = today.getFullYear();
-//
-//    if (dd < 10) {
-//        dd = '0' + dd;
-//    } 
-//    if (mm < 10) {
-//        mm = '0' + mm;
-//    } 
-//    today = yyyy + '-' + mm +'-' + dd;
-//    return today;
-
 
 // Jimmy Kimmel Live: 1388,
 // The Tonight Show Starring Jimmy Fallon: 718,
@@ -356,6 +339,7 @@ function getShowHostFromIntent(intent, assignDefault) {
             var showName = HOSTS[showInfo.toLowerCase()];
         } else if (showSlot.value) {
             showName = showSlot.value;
+            console.log('showName: ' + showName);
             showInfo = SHOWS[showName.toLowerCase()];
         }
         

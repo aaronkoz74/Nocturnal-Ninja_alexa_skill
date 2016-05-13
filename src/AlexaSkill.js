@@ -139,11 +139,12 @@ Response.prototype = (function () {
                 outputSpeech: createSpeechObject(options.reprompt)
             };
         }
-        if (options.cardTitle && options.cardContent) {
+        if (options.cardTitle && options.cardContent && options.imageFile) {
             alexaResponse.card = {
-                type: "Simple",
+                type: "Standard",
                 title: options.cardTitle,
-                content: options.cardContent
+                content: options.cardContent,
+                image: options.imageFile
             };
         }
         var returnResult = {
