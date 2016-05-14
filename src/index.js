@@ -10,41 +10,24 @@
 
 /**
  * This sample shows how to create a Lambda function for handling Alexa Skill requests that:
- * - Web service: communicate with an external web service to get tide data from NOAA CO-OPS API (http://tidesandcurrents.noaa.gov/api/)
- * - Multiple optional slots: has 2 slots (city and date), where the user can provide 0, 1, or 2 values, and assumes defaults for the unprovided values
- * - DATE slot: demonstrates date handling and formatted date responses appropriate for speech
- * - Custom slot type: demonstrates using custom slot types to handle a finite set of known values
- * - Dialog and Session state: Handles two models, both a one-shot ask and tell model, and a multi-turn dialog model.
- *   If the user provides an incorrect slot in a one-shot model, it will direct to the dialog model. See the
- *   examples section for sample interactions of these models.
- * - Pre-recorded audio: Uses the SSML 'audio' tag to include an ocean wave sound in the welcome response.
+ * - Web service: communicate with an external web service to get guest data from TVMaze API (http://tidesandcurrents.noaa.gov/api/)
  *
  * Examples:
  * One-shot model:
- *  User:  "Alexa, ask Nocturnal Ninja when is the high tide in Seattle on Saturday"
- *  Alexa: "Saturday June 20th in Seattle the first high tide will be around 7:18 am,
- *          and will peak at ...""
+ *  User:  "Alexa, ask Nocturnal Ninja who's going to be on The Late Show."
+ *  Alexa: "Tonight, Stephen Colbert welcomes ... to the show."
  * Dialog model:
  *  User:  "Alexa, open Nocturnal Ninja"
- *  Alexa: "Welcome to Nocturnal Ninja. Which city would you like tide information for?"
- *  User:  "Seattle"
- *  Alexa: "For which date?"
- *  User:  "this Saturday"
- *  Alexa: "Saturday June 20th in Seattle the first high tide will be around 7:18 am,
- *          and will peak at ...""
+ *  Alexa: "Welcome to Nocturnal Ninja. For which host or show would you like guest information?"
+ *  User:  "Jimmy Fallon"
+ *  Alexa: "Tonight, Jimmy Fallon welcomes ... to the show."
  */
 
-/**
- * App ID for the skill
- */
-var APP_ID = 'amzn1.echo-sdk-ams.app.f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28';
+'use strict';
 
-var http = require('http');
-
-/**
- * The AlexaSkill prototype and helper functions
- */
 var AlexaSkill = require('./AlexaSkill');
+
+var APP_ID = 'amzn1.echo-sdk-ams.app.f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28';
 
 /**
  * NocturnalNinja is a child of AlexaSkill.
@@ -60,38 +43,42 @@ var NocturnalNinja = function () {
 NocturnalNinja.prototype = Object.create(AlexaSkill.prototype);
 NocturnalNinja.prototype.constructor = NocturnalNinja;
 
-// ----------------------- Override AlexaSkill request and intent handlers -----------------------
-
-NocturnalNinja.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
-    console.log("onSessionStarted requestId: " + sessionStartedRequest.requestId
-        + ", sessionId: " + session.sessionId);
-    // any initialization logic goes here
-};
+//NocturnalNinja.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
+//    console.log("onSessionStarted requestId: " + sessionStartedRequest.requestId
+//        + ", sessionId: " + session.sessionId);
+//    // any initialization logic goes here
+//};
 
 NocturnalNinja.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
-    console.log("onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    handleWelcomeRequest(response);
+        var speechOutput = {
+            speech: "<speak>Welcome to Nocturnal Ninja.  Your guide to who is going to be on the late night talk shows ... "
+                + "For which host, or show, would you like guest information?</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        },
+//        Offer help if user does not reply to initial question or says something not understood by Alexa
+        repromptOutput = {
+            speech: "For instructions on how to phrase your request, please say help me.",
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+
+    response.ask(speechOutput, repromptOutput);
 };
 
-NocturnalNinja.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
-    console.log("onSessionEnded requestId: " + sessionEndedRequest.requestId
-        + ", sessionId: " + session.sessionId);
-    // any cleanup logic goes here
-};
+//NocturnalNinja.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
+//    console.log("onSessionEnded requestId: " + sessionEndedRequest.requestId
+//        + ", sessionId: " + session.sessionId);
+//    // any cleanup logic goes here
+//};
 
-/**
- * override intentHandlers to map intent handling functions.
- */
 NocturnalNinja.prototype.intentHandlers = {
     "OneshotGuestListIntent": function (intent, session, response) {
         handleOneshotGuestListRequest(intent, session, response);
     },
 
     "DialogGuestListIntent": function (intent, session, response) {
-        // Determine if this turn is for host, for show, or an error.
-        // We could be passed slots with values, no slots, slots with no value.
-        var showSlot = intent.slots.Show;
-        var hostSlot = intent.slots.Host;
+
+        var showSlot = intent.slots.Show,
+            hostSlot = intent.slots.Host;
         
         if (hostSlot.value || showSlot.value) {
             handleHostDialogRequest(intent, session, response);
@@ -197,7 +184,66 @@ function handleHostDialogRequest(intent, session, response) {
  */
 function handleOneshotGuestListRequest(intent, session, response) {
 
-    // Determine host, using default if none provided
+    var hostSlot = intent.slots.Host,
+        showSlot = intent.slots.Show,
+        hostName,
+        showName;
+
+    if (hostSlot && hostSlot.value) {
+        hostName = hostSlot.value,
+        showName = HOSTS[hostName.toLowerCase()];
+        
+        return {
+            host: hostName,
+            showCode: SHOWCODE[showName].toString()
+        } 
+    } else if (showSlot && showSlot.value) {
+        showName = showSlot.value,
+        hostName = SHOWS[showName.toLowerCase()];
+        
+        return {
+            host: hostName,
+            showCode: SHOWCODE[showName].toString()
+        } 
+    } else {
+        
+    }
+    
+//    if (!hostSlot.value && !showSlot.value) {
+//        if (!assignDefault) {
+//            return {
+//                error: true
+//            }
+//        } else {
+//            // For sample skill, default to the code for Jimmy Fallon.
+//            return {
+//                host: 'jimmy fallon',
+//                showCode: '718'
+//            }
+//        }
+    } else {
+        // lookup the show code.
+        if (hostSlot.value) {
+            var showInfo = hostSlot.value;
+            var showName = HOSTS[showInfo.toLowerCase()];
+        } else if (showSlot.value) {
+            showName = showSlot.value;
+            console.log('showName: ' + showName);
+            showInfo = SHOWS[showName.toLowerCase()];
+        }
+        
+        if (showName) {
+            return {
+                host: showInfo,
+                showCode: SHOWCODE[showName].toString()
+            }
+        } else {
+            return {
+                error: true,
+                host: showInfo
+            }
+        }
+    }
     var showInfo = getShowHostFromIntent(intent, true),
         repromptText,
         speechOutput;
@@ -227,7 +273,7 @@ function getFinalGuestResponse(showInfo, response) {
         var speechOutput;
 
         if (err) {
-            speechOutput = "Sorry, the API used to collect the guest information is experiencing a problem. Please try again later";
+            speechOutput = "Sorry, the API used to collect the guest information i s experiencing a problem. Please try again later";
         } else {
             speechOutput = "Tonight, " + showInfo.host + " welcomes  " + guestListResponse + " to the show.";
         }
