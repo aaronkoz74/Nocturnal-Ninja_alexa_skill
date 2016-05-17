@@ -1,28 +1,11 @@
 {
   "intents": [
     {
-      "intent": "OneshotGuestListIntent",
+      "intent": "GuestListIntent",
       "slots": [
         {
-          "name": "Host",
-          "type": "LIST_OF_HOSTS"
-        },
-        {
-          "name": "Show",
-          "type": "LIST_OF_SHOWS"
-        }
-      ]
-    },
-    {
-      "intent": "DialogGuestListIntent",
-      "slots": [
-        {
-          "name": "Host",
-          "type": "LIST_OF_HOSTS"
-        },
-        {
-          "name": "Show",
-          "type": "LIST_OF_SHOWS"
+          "name": "Input",
+          "type": "LIST_OF_INPUTS"
         }
       ]
     },

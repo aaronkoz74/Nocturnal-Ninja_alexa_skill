@@ -1,83 +1,40 @@
-DialogGuestListIntent {Show}
-DialogGuestListIntent {Host}
-
-OneshotGuestListIntent guest list for {Show}
-OneshotGuestListIntent guest list for {Show} tonight
-OneshotGuestListIntent guest list for {Host}
-OneshotGuestListIntent guest list for {Host} tonight
-OneshotGuestListIntent get guest list for {Show}
-OneshotGuestListIntent get guest list for {Show} tonight
-OneshotGuestListIntent get guest list for {Host}
-OneshotGuestListIntent get guest list for {Host} tonight
-OneshotGuestListIntent get guest information for {Show}
-OneshotGuestListIntent get guest information for {Show} tonight
-OneshotGuestListIntent get guest information for {Host}
-OneshotGuestListIntent get guest information for {Host} tonight
-OneshotGuestListIntent guest on {Show}
-OneshotGuestListIntent guest on {Show} tonight
-OneshotGuestListIntent guest on {Host}
-OneshotGuestListIntent guest on {Host} tonight
-OneshotGuestListIntent guest with {Show}
-OneshotGuestListIntent guest with {Show} tonight
-OneshotGuestListIntent guest with {Host}
-OneshotGuestListIntent guest with {Host} tonight
-OneshotGuestListIntent guests on {Show}
-OneshotGuestListIntent guests on {Show} tonight
-OneshotGuestListIntent guests on {Host}
-OneshotGuestListIntent guests on {Host} tonight
-OneshotGuestListIntent guests with {Show}
-OneshotGuestListIntent guests with {Show} tonight
-OneshotGuestListIntent guests with {Host}
-OneshotGuestListIntent guests with {Host} tonight
-OneshotGuestListIntent who {Host} has on
-OneshotGuestListIntent who {Host} has on tonight
-OneshotGuestListIntent who {Show} has on
-OneshotGuestListIntent who {Show} has on tonight
-OneshotGuestListIntent who is on {Show}
-OneshotGuestListIntent who is on {Show} tonight
-OneshotGuestListIntent who is on {Host}
-OneshotGuestListIntent who is on {Host} tonight
-OneshotGuestListIntent who is appearing on {Show}
-OneshotGuestListIntent who is appearing on {Show} tonight
-OneshotGuestListIntent who is appearing on {Host}
-OneshotGuestListIntent who is appearing on {Host} tonight
-OneshotGuestListIntent who is going to be on {Show}
-OneshotGuestListIntent who is going to be on {Show} tonight
-OneshotGuestListIntent who is going to be on {Host}
-OneshotGuestListIntent who is going to be on {Host} tonight
-OneshotGuestListIntent who are the guests appearing on {Show}
-OneshotGuestListIntent who are the guests appearing on {Show} tonight
-OneshotGuestListIntent who are the guests appearing on {Host}
-OneshotGuestListIntent who are the guests appearing on {Host} tonight
-OneshotGuestListIntent who's on {Show}
-OneshotGuestListIntent who's on {Show} tonight
-OneshotGuestListIntent who's on {Host}
-OneshotGuestListIntent who's on {Host} tonight
-OneshotGuestListIntent who's appearing on {Show}
-OneshotGuestListIntent who's appearing on {Show} tonight
-OneshotGuestListIntent who's appearing on {Host}
-OneshotGuestListIntent who's appearing on {Host} tonight
-OneshotGuestListIntent who's going to be on {Show}
-OneshotGuestListIntent who's going to be on {Show} tonight
-OneshotGuestListIntent who's going to be on {Host}
-OneshotGuestListIntent who's going to be on {Host} tonight
-OneshotGuestListIntent whose on {Show}
-OneshotGuestListIntent whose on {Show} tonight
-OneshotGuestListIntent whose on {Host}
-OneshotGuestListIntent whose on {Host} tonight
-OneshotGuestListIntent whose appearing on {Show}
-OneshotGuestListIntent whose appearing on {Show} tonight
-OneshotGuestListIntent whose appearing on {Host}
-OneshotGuestListIntent whose appearing on {Host} tonight
-OneshotGuestListIntent whose going to be on {Show}
-OneshotGuestListIntent whose going to be on {Show} tonight
-OneshotGuestListIntent whose going to be on {Host}
-OneshotGuestListIntent whose going to be on {Host} tonight
-OneshotGuestListIntent who does {Host} have
-OneshotGuestListIntent who does {Host} have tonight
-OneshotGuestListIntent who does {Show} have
-OneshotGuestListIntent who does {Show} have tonight
-OneshotGuestListIntent who does {Host} have on
-OneshotGuestListIntent who does {Host} have on tonight
-OneshotGuestListIntent who does {Show} have on
-OneshotGuestListIntent who does {Show} have on tonight
+GuestListIntent guest list for {Input}
+GuestListIntent guest list for {Input} tonight
+GuestListIntent get guest list for {Input}
+GuestListIntent get guest list for {Input} tonight
+GuestListIntent get guest information for {Input}
+GuestListIntent get guest information for {Input} tonight
+GuestListIntent guest on {Input}
+GuestListIntent guest on {Input} tonight
+GuestListIntent guest with {Input}
+GuestListIntent guest with {Input} tonight
+GuestListIntent guests on {Input}
+GuestListIntent guests on {Input} tonight
+GuestListIntent guests with {Input}
+GuestListIntent guests with {Input} tonight
+GuestListIntent who {Input} has on
+GuestListIntent who {Input} has on tonight
+GuestListIntent who is on {Input}
+GuestListIntent who is on {Input} tonight
+GuestListIntent who is appearing on {Input}
+GuestListIntent who is appearing on {Input} tonight
+GuestListIntent who is going to be on {Input}
+GuestListIntent who is going to be on {Input} tonight
+GuestListIntent who are the guests appearing on {Input}
+GuestListIntent who are the guests appearing on {Input} tonight
+GuestListIntent who's on {Input}
+GuestListIntent who's on {Input} tonight
+GuestListIntent who's appearing on {Input}
+GuestListIntent who's appearing on {Input} tonight
+GuestListIntent who's going to be on {Input}
+GuestListIntent who's going to be on {Input} tonight
+GuestListIntent whose on {Input}
+GuestListIntent whose on {Input} tonight
+GuestListIntent whose appearing on {Input}
+GuestListIntent whose appearing on {Input} tonight
+GuestListIntent whose going to be on {Input}
+GuestListIntent whose going to be on {Input} tonight
+GuestListIntent who does {Input} have
+GuestListIntent who does {Input} have tonight
+GuestListIntent who does {Input} have on
+GuestListIntent who does {Input} have on tonight
