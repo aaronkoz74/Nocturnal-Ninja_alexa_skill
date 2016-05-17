@@ -76,11 +76,11 @@ NocturnalNinja.prototype.intentHandlers = {
                 repromptOutput;
     
             speechOutput = {
-                speech: "<speak>I'm sorry, I could not find information on that host or show.  Please try again, saying ... who is going to be on Jimmy Fallon, Stephen Colbert, or Jimmy Kimmel.</speak>",
+                speech: "<speak>I'm sorry, I could not find information on that host or show.  Please try again.</speak>",
                 type: AlexaSkill.speechOutputType.SSML
             };
             repromptOutput = {
-                speech: "Please say ... who is going to be on Jimmy Fallon, Stephen Colbert, or Jimmy Kimmel.  Or say cancel to quit.",
+                speech: "Please say something like ... who is going to be on Jimmy Fallon or who is going to be on the tonight show.  Or say cancel to quit.",
                 type: AlexaSkill.speechOutputType.PLAIN_TEXT
             };
             response.ask(speechOutput, repromptOutput);
@@ -124,11 +124,11 @@ function getFinalGuestResponse(inputName, response) {
             speechOutput;
 
         if (err) {
-            var speechText = "Sorry, currently there is no guest information available for " + showData[inputName].Show + ". Please try again later.";
+            var speechText = "Sorry, there is currently no guest information available for " + showData[inputName].Show + ",  or it is not on tonight. Please try again tomorrow, or ask about a different show.";
         } else if (inputName === 'saturday night live') {
-            speechText = "This week, " + guestListResponse + "will be appearing on " + showData[inputName].Show;
+            speechText = "Tonight, " + guestListResponse + "will be appearing on " + showData[inputName].Show;
         } else {
-            speechText = "Tonight on " + showData[inputName].Show + ", " + showData[inputName].Host + " welcomes " + guestListResponse + " to the show.";
+            speechText = "Tonight on " + showData[inputName].Show + ", " + showData[inputName].Host + " welcomes " + guestListResponse + "  to the show.";
         }
         speechOutput = speechText;
         
@@ -144,10 +144,7 @@ Get today's date in format to use with API
     var today = new Date(),
         dd = today.getDate(),
         mm = today.getMonth() + 1, //January is 0
-        yyyy = today.getFullYear(),
-        day = today.getDay(),
-        satDate = dd + (6 - day),
-        satNightLive;
+        yyyy = today.getFullYear();
 
         if (dd < 10) {
             dd = '0' + dd;
@@ -155,13 +152,7 @@ Get today's date in format to use with API
         if (mm < 10) {
             mm = '0' + mm;
         }
-        if (satDate < 10) {
-            satDate = '0' + satDate;
-        }
         today = yyyy + '-' + mm +'-' + dd;
-        satNightLive = yyyy + '-' + mm + '-' + satDate;     // this won't work when dd is near end of month
-    }
-        
 
     var http = require('http'),
         options = {
@@ -188,10 +179,10 @@ Get today's date in format to use with API
                 // edit the guestList so that it includes 'and' before the last guest name
 
                 var guestList = tvMazeResponseObject[0].name,
-                    guestArray = guestList.split(',');
+                    guestArray = guestList.split(', ');
 
                 if (guestArray.length > 1) {
-                        guestList = guestArray.slice(0, -1) + " and" + guestArray.slice(-1);
+                        guestList = guestArray.slice(0, -1).join(', ') + " and " + guestArray.slice(-1);
                 }
                 guestListResponseCallback(null, guestList);
             }
