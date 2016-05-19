@@ -26,7 +26,8 @@ module.exports = {
         "Show": "The Late Late Show",
         "Code": "2831"
     },
-    "seth meyers": {
+    // changed last name to correspond with apparent autocorrect done by Alexa --- they're spelling it 'myers' instead of 'meyers'
+    "seth myers": {
         "Host": "Seth Meyers",
         "Show": "Late Night",
         "Code": "363"
@@ -75,9 +76,5 @@ module.exports = {
         "Host": "Trevor Noah",
         "Show": "The Daily Show",
         "Code": "3928"
-    },
-    "saturday night live": {
-        "Show": "Saturday Night Live",
-        "Code": "361"
     }
 };

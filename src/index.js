@@ -9,18 +9,17 @@
 */
 
 /**
- * This sample shows how to create a Lambda function for handling Alexa Skill requests that:
- * - Web service: communicate with an external web service to get guest data from TVMaze API (http://tidesandcurrents.noaa.gov/api/)
+ * - Web service: communicate with an external web service to get guest data from TVMaze API (api.tvmaze.com)
  *
  * Examples:
  * One-shot model:
  *  User:  "Alexa, ask Nocturnal Ninja who's going to be on The Late Show."
- *  Alexa: "Tonight, Stephen Colbert welcomes ... to the show."
+ *  Alexa: "Tonight, Stephen Colbert welcomes to the show ... ."
  * Dialog model:
  *  User:  "Alexa, open Nocturnal Ninja"
- *  Alexa: "Welcome to Nocturnal Ninja. For which host or show would you like guest information?"
+ *  Alexa: "Welcome to Nocturnal Ninja.  Your guide to who is going to be on the late night talk show. For which host or show would you like guest information?"
  *  User:  "Jimmy Fallon"
- *  Alexa: "Tonight, Jimmy Fallon welcomes ... to the show."
+ *  Alexa: "Tonight, Jimmy Fallon welcomes to the show ... ."
  */
 
 'use strict';
@@ -125,10 +124,8 @@ function getFinalGuestResponse(inputName, response) {
 
         if (err) {
             var speechText = "Sorry, there is currently no guest information available for " + showData[inputName].Show + ",  or it is not on tonight. Please try again tomorrow, or ask about a different show.";
-        } else if (inputName === 'saturday night live') {
-            speechText = "Tonight, " + guestListResponse + "will be appearing on " + showData[inputName].Show;
         } else {
-            speechText = "Tonight on " + showData[inputName].Show + ", " + showData[inputName].Host + " welcomes " + guestListResponse + "  to the show.";
+            speechText = "Tonight on " + showData[inputName].Show + ", " + showData[inputName].Host + " welcomes to the show " + guestListResponse;
         }
         speechOutput = speechText;
         
