@@ -123,7 +123,7 @@ function getFinalGuestResponse(inputName, response) {
             speechOutput;
 
         if (err) {
-            var speechText = "Sorry, there is currently no guest information available for " + showData[inputName].Show + ",  or it is not on tonight. Please try again tomorrow, or ask about a different show.";
+            var speechText = "Sorry, there is currently no guest information available for " + showData[inputName].Show + ". Please try again tomorrow, or ask about a different show.";
         } else {
             speechText = "Tonight on " + showData[inputName].Show + ", " + showData[inputName].Host + " welcomes to the show " + guestListResponse;
         }
