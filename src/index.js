@@ -29,6 +29,40 @@ var AlexaSkill = require('./AlexaSkill'),
 
 var APP_ID = 'amzn1.echo-sdk-ams.app.f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28';
 
+//var express = require('express');
+
+
+//var app = express();
+
+var GA_TRACKING_ID = 'UA-75269549-2';
+
+function trackEvent(category, action, label, value, cb) {
+    var request = require('request');
+    var data = {
+        v: '1', // API Version.
+        tid: GA_TRACKING_ID, // Tracking ID / Property ID.
+        // Anonymous Client Identifier. Ideally, this should be a UUID that
+        // is associated with particular user, device, or browser instance.
+        cid: '555',
+        t: 'event', // Event hit type.
+        ec: category, // Event category.
+        ea: action, // Event action.
+        el: label, // Event label.
+        ev: value // Event value.
+    };
+    
+    request.post({
+        url: 'http://www.google-analytics.com/collect', form: data},
+        function(err, response) {
+            if (err) { return cb(err); }
+            if (response.statusCode !== 200) {
+                return cb(new Error('Tracking failed'));
+            }
+            cb();
+        }
+    );
+}
+
 /**
  * NocturnalNinja is a child of AlexaSkill.
  * To read more about inheritance in JavaScript, see the link below.
@@ -87,17 +121,30 @@ NocturnalNinja.prototype.intentHandlers = {
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechOutput = {
-            speech: "<speak>You can find out what guests are going to be on the late night talk shows by saying something like, "
-                + "Who is going to be on The Tonight Show?" + "Now, what show or host would you like guest information for?</speak>",
-            type: AlexaSkill.speechOutputType.SSML
-        },
-//        Offer help if user does not reply to initial question or says something not understood by Alexa
-        repromptOutput = {
-            speech: "For instructions on how to phrase your request, please say help me.",
-            type: AlexaSkill.speechOutputType.PLAIN_TEXT
-        };
-        response.ask(speechOutput, repromptOutput);
+        console.log("DOES THIS SHOW UP BEFORE trackEvent?");
+        trackEvent(
+            'Intent',
+            'AMAZON.HelpIntent',
+            'na',
+            '100', // Event value must be numeric.
+            function (err) {
+                if (err) {
+                    console.log('There was a problem processing the request.');
+                }
+                
+                var speechOutput = {
+                    speech: "<speak>You can find out what guests are going to be on the late night talk shows by saying something like, " + "Who is going to be on The Tonight Show?" + "Now, what show or host would you like guest information for?</speak>",
+                    type: AlexaSkill.speechOutputType.SSML
+                },
+    //        Offer help if user does not reply to initial question or says something not understood by Alexa
+                repromptOutput = {
+                    speech: "For instructions on how to phrase your request, please say help me.",
+                    type: AlexaSkill.speechOutputType.PLAIN_TEXT
+                };
+                response.ask(speechOutput, repromptOutput);
+            }
+        );
+        
     },
 
     "AMAZON.StopIntent": function (intent, session, response) {
@@ -109,7 +156,7 @@ NocturnalNinja.prototype.intentHandlers = {
         var speechOutput = "Goodbye";
         response.tell(speechOutput);
     }
-};
+}
 
 function getFinalGuestResponse(inputName, response) {
     makeGuestRequest(inputName, function guestListResponseCallback(err, guestListResponse) {
@@ -131,7 +178,7 @@ function getFinalGuestResponse(inputName, response) {
         
         response.tellWithCard(speechOutput, cardTitle, speechOutput, imageFile);
     });
-};
+}
 
 function makeGuestRequest(inputName, guestListResponseCallback) {
     
@@ -145,11 +192,11 @@ Get today's date in format to use with API
 
         if (dd < 10) {
             dd = '0' + dd;
-        } 
+        }
         if (mm < 10) {
             mm = '0' + mm;
         }
-        today = yyyy + '-' + mm +'-' + dd;
+        today = yyyy + '-' + mm + '-' + dd;
 
     var http = require('http'),
         options = {
@@ -157,7 +204,7 @@ Get today's date in format to use with API
             path: '/shows/' + showData[inputName].Code + '/episodesbydate?date=' + today
         };
     
-    http.request(options, function(response) {
+    http.request(options, function (response) {
         var showInfoString = '';
 
         response.on('data', function (guestData) {
@@ -165,7 +212,7 @@ Get today's date in format to use with API
         });
 
         response.on('end', function () {
-            var tvMazeResponseObject = JSON.parse(showInfoString); 
+            var tvMazeResponseObject = JSON.parse(showInfoString);
 
 
             if (tvMazeResponseObject.status) {
