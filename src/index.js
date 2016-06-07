@@ -43,7 +43,7 @@ function trackEvent(category, action, label, value, cb) {
         tid: GA_TRACKING_ID, // Tracking ID / Property ID.
         // Anonymous Client Identifier. Ideally, this should be a UUID that
         // is associated with particular user, device, or browser instance.
-        cid: '555',
+        cid: 'f3c3b651-1a73-4c64-bafe-1f7dd9a9ae28',
         t: 'event', // Event hit type.
         ec: category, // Event category.
         ea: action, // Event action.
@@ -94,34 +94,43 @@ NocturnalNinja.prototype.eventHandlers.onLaunch = function (launchRequest, sessi
 
 NocturnalNinja.prototype.intentHandlers = {
     "GuestListIntent": function (intent, session, response) {
+        trackEvent(
+            'Intent',
+            'AMAZON.GuestListIntent',
+            'na',
+            '100', // Event value must be numeric.
+            function (err) {
+                if (err) {
+                    console.log('There was a problem processing the request.');
+                }
+                
+                var inputSlot = intent.slots.Input, inputName;
+        
+                if (inputSlot && inputSlot.value) {
+                    inputName = inputSlot.value.toLowerCase();
+                }
 
-        var inputSlot = intent.slots.Input,
-            inputName;
-        
-        if (inputSlot && inputSlot.value) {
-            inputName = inputSlot.value.toLowerCase();
-        }
-        
-        if (inputName in showData) {
-            getFinalGuestResponse(inputName, response);
-        } else {
-            var speechOutput,
-                repromptOutput;
-    
-            speechOutput = {
-                speech: "<speak>I'm sorry, I could not find information on that host or show.  Please try again.</speak>",
-                type: AlexaSkill.speechOutputType.SSML
-            };
-            repromptOutput = {
-                speech: "Please say something like ... who is going to be on Jimmy Fallon or who is going to be on the tonight show.  Or say cancel to quit.",
-                type: AlexaSkill.speechOutputType.PLAIN_TEXT
-            };
-            response.ask(speechOutput, repromptOutput);
-        }
+                if (inputName in showData) {
+                    getFinalGuestResponse(inputName, response);
+                } else {
+                    var speechOutput,
+                        repromptOutput;
+
+                    speechOutput = {
+                        speech: "<speak>I'm sorry, I could not find information on that host or show.  Please try again.</speak>",
+                        type: AlexaSkill.speechOutputType.SSML
+                    };
+                    repromptOutput = {
+                        speech: "Please say something like ... who is going to be on Jimmy Fallon or who is going to be on the tonight show.  Or say cancel to quit.",
+                        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+                    };
+                    response.ask(speechOutput, repromptOutput);
+                }
+            }
+        );
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        console.log("DOES THIS SHOW UP BEFORE trackEvent?");
         trackEvent(
             'Intent',
             'AMAZON.HelpIntent',
@@ -148,13 +157,39 @@ NocturnalNinja.prototype.intentHandlers = {
     },
 
     "AMAZON.StopIntent": function (intent, session, response) {
-        var speechOutput = "Goodbye";
-        response.tell(speechOutput);
+        trackEvent(
+            'Intent',
+            'AMAZON.StopIntent',
+            'na',
+            '100', // Event value must be numeric.
+            function (err) {
+                if (err) {
+                    console.log('There was a problem processing the request.');
+                }
+                
+                var speechOutput = "Goodbye";
+                response.tell(speechOutput);
+            }
+        );
+        
     },
 
     "AMAZON.CancelIntent": function (intent, session, response) {
-        var speechOutput = "Goodbye";
-        response.tell(speechOutput);
+        trackEvent(
+            'Intent',
+            'AMAZON.CancelIntent',
+            'na',
+            '100', // Event value must be numeric.
+            function (err) {
+                if (err) {
+                    console.log('There was a problem processing the request.');
+                }
+                
+                var speechOutput = "Goodbye";
+                response.tell(speechOutput);
+            }
+        );
+        
     }
 }
 
