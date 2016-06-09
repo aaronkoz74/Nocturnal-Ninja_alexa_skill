@@ -98,7 +98,7 @@ NocturnalNinja.prototype.intentHandlers = {
             'Intent',
             'AMAZON.GuestListIntent',
             'na',
-            '100', // Event value must be numeric.
+            '1', // Event value must be numeric.
             function (err) {
                 if (err) {
                     console.log('There was a problem processing the request.');
@@ -135,7 +135,7 @@ NocturnalNinja.prototype.intentHandlers = {
             'Intent',
             'AMAZON.HelpIntent',
             'na',
-            '100', // Event value must be numeric.
+            '1', // Event value must be numeric.
             function (err) {
                 if (err) {
                     console.log('There was a problem processing the request.');
@@ -161,7 +161,7 @@ NocturnalNinja.prototype.intentHandlers = {
             'Intent',
             'AMAZON.StopIntent',
             'na',
-            '100', // Event value must be numeric.
+            '1', // Event value must be numeric.
             function (err) {
                 if (err) {
                     console.log('There was a problem processing the request.');
@@ -179,7 +179,7 @@ NocturnalNinja.prototype.intentHandlers = {
             'Intent',
             'AMAZON.CancelIntent',
             'na',
-            '100', // Event value must be numeric.
+            '1', // Event value must be numeric.
             function (err) {
                 if (err) {
                     console.log('There was a problem processing the request.');
